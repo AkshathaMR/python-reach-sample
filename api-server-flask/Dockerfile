@@ -1,14 +1,23 @@
-FROM python:3.9
+    # pull official base image
+    FROM node:14-alpine
 
-COPY . .
-
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# install python dependencies
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-
-# gunicorn
-CMD ["gunicorn", "--config", "gunicorn-cfg.py", "run:app"]
+    # set working directory
+    WORKDIR /app
+    
+    # add `/app/node_modules/.bin` to $PATH
+    ENV PATH /app/node_modules/.bin:$PATH
+    ENV BACKEND_SERVICE "http://123"
+    
+    # install app dependencies
+    COPY package.json ./
+    RUN npm install --silent
+    RUN npm install react-scripts@4.0.0 -g --silent
+    
+    # add app
+    COPY . ./
+    
+    # Expose port
+    EXPOSE 3000
+    
+    # start app
+    CMD ["npm", "start"]
